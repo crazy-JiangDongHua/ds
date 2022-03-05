@@ -1,0 +1,41 @@
+---
+title: "week4"
+author: "FrankJ"
+date: '2022-03-05'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 学习使用 R Markdown
+
+## 数据科学问题分类
+
+1.  Descriptive
+2.  Exploratory
+3.  Inferential
+4.  Predictive
+5.  Causal
+6.  Mechanistic
+
+## 实验设计
+
+1.  提出问题
+2.  合理假设
+3.  确定自变量和因变量
+4.  排除干扰变量
+    -   双盲实验
+    -   随机地抽取个体到各个组中，减少干扰因素地影响
+    -   重复实验
+    -   p值检验
+5.  收集合适数据
+6.  实验
+7.  分享结论
+
+## 大数据
+
+大数据不仅体现在规模大，生成速度快上，更体现在种类多，即从结构化数据向非结构化数据转变。
+
+数据科学是**问题驱动数据**，如果不适合问题，再大的数据集也没用。
