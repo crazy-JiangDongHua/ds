@@ -1,0 +1,63 @@
+## Quiz1
+### q6
+```{r}
+x <- 1:4
+y <- 2:3
+x+y
+```
+### q11
+```{r}
+df = read.csv("../datas/hw1_data.csv", )
+names(df)
+```
+
+### q12
+```{r}
+df[1:2, ]
+```
+### q13
+```{r}
+dim(df)
+```
+
+### q14
+```{r}
+df[152:153, ]
+```
+
+### q15
+```{r}
+df[[47, "Ozone"]]
+```
+
+### q16
+```{r}
+sum(is.na(df["Ozone"]))
+```
+### q17
+```{r}
+good <- !is.na(df["Ozone"])
+mean(df[good, "Ozone"])
+```
+
+### q18
+```{r}
+id1 <- df["Ozone"]>31 
+id1[is.na(id1)] <- FALSE
+id2 <- df["Temp"]>90
+id2[is.na(id2)] <- FALSE
+id = id1 & id2
+mean(df[id, "Solar.R"])
+```
+
+
+### q19
+```{r}
+mean(df[df["Month"]==6, "Temp"])
+```
+
+### q20
+```{r}
+m5o = df[df["Month"]==5, "Ozone"]
+max(m5o[!is.na(m5o)])
+```

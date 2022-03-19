@@ -1,0 +1,578 @@
+---
+title: "Geting started and R Nuts and Bolts"
+author: "FrankJ"
+date: '2022-03-15'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R概述和历史
+
+-   R是S语言的一种GNU的实现（免费啦！）。
+
+-   交互式编程是设计的基本原则，有助于用户理清自己的需求，当需求变得清楚和复杂，用户就会采用编程的方式开发。
+
+-   R的绘图包很顶级！
+
+-   和python一样，R的核心很小，其他功能都是通过拓展包实现的。
+
+## R 基本组件
+
+### 赋值和评估
+
+在R中，`<-`是赋值符号。直接输入变量名或者适用`print()` 可以评估变量的值。
+
+```{r}
+x <- 1
+x
+print(x)
+
+```
+
+`[1]`表示`x`是一个向量，`5`是第一个元素，再看一个例子：
+
+```{r}
+x <- 11:50
+x
+```
+
+## R对象
+
+R对象有五种基本数据类型：
+
+-   字符（character）
+
+-   浮点数（numeric）：所有数字默认为浮点数，要想是整数得加大写`L`，一个特殊的符号是`Inf`和`-Inf`，表示无穷和负无穷，另一个是`NaN`，表示未定义的值
+
+-   整数（integer）
+
+-   复数（complex）
+
+-   逻辑值（logical）
+
+R最基本的对象是向量，可以使用`Vector()`生成，向量中的元素必须是同一种数据类型。`list`是特殊的向量，可以包含不同类型的元素。
+
+```{r}
+x <- vector("integer", 10)
+x
+y <- list(1, "a", 2+5i)
+y
+1/0
+1/Inf
+0/0
+```
+
+R对象有很多属性，可以帮助我们了解对象，比如说：
+
+-   名字
+
+-   维度（dimensions）
+
+-   数据类型（class）
+
+-   长度（length）
+
+-   其他用户自定义属性
+
+可以通过`attributes()`函数访问对象属性，没有属性就会返回`Null`
+
+```{r}
+names(x)
+dimnames(x)
+class(x)
+dim(x)
+length(x)
+attributes(x)
+```
+
+### 创建向量
+
+使用`c()`可以创建向量
+
+```{r}
+x <- c(0.5, 0.6)       ## numeric
+x
+x <- c(TRUE, FALSE)    ## logical
+x
+x <- c(T, F)           ## logical
+x
+x <- c("a", "b", "c")  ## character
+x
+x <- 9:29              ## integer
+x
+x <- c(1+0i, 2+4i)     ## complex
+x
+```
+
+也可以使用`vector()`函数创造
+
+```{r}
+x <- vector("numeric", length = 10)
+x
+```
+
+如果把不同类型的元素放到一个向量里面，就会发生隐式的强制类型转换。
+
+```{r}
+y <- c(1.7, "a")   ## character
+y
+y <- c(TRUE, 2)    ## numeric
+y
+y <- c("a", TRUE)  ## character
+y
+```
+
+也可以使用`as.*`做显示的强制类型转换
+
+```{r}
+x <- 0:6
+class(x)
+as.numeric(x)
+as.logical(x)
+as.character(x)
+```
+
+但是有些时候不 能转换，只能返回`NA`，他表示缺失值，注意和`NaN`区分
+
+```{r}
+x <- c("a", "b", "c")
+as.numeric(x)
+as.logical(x)
+as.complex(x)
+```
+
+### 矩阵
+
+矩阵是一个有维度属性的向量，维度属性是两个整数组成的向量。
+
+```{r}
+m <- matrix(nrow = 2, ncol = 3)
+m
+dim(m)
+attributes(m)
+```
+
+矩阵是按列构建的，和python不一样，和FORTRAN一样
+
+```{r}
+m = matrix(1:6, nrow=2, ncol=3, dimnames=list(c("row1","row2"),c("col1","col2","col3")))
+m
+```
+
+矩阵也可以对向量附加一个dim属性生成，如果dim是三维，那句生成三维数组，多维一样。
+
+```{r}
+m <- 1:10
+dim(m) <- c(2,5)
+m
+```
+
+也可以向量通过列结合`cbind()`和行`rbind()`结合生成矩阵
+
+```{r}
+x <- 1:3
+y <- 10:12
+cbind(x, y)
+rbind(x, y) 
+```
+
+### 列表
+
+列表可以包含不同种的元素，非常牛逼，可以通过`list()`显示创造，也可以通过`vector()`建立一个空的
+
+```{r}
+x <- list(1, "a", TRUE, 1 + 4i)
+x
+x <- vector("list", length = 5)
+x
+```
+
+### 因子（Factors）
+
+因此用于描述类型数据，可以有序也可以无序，很像枚举，很适合做label。本质是integer类型，对应的integer从1开始，按字典序排序。
+
+```{r}
+x <- factor(c("male", "male", "female", "male", "female"))
+x
+table(x)
+unclass(x)
+## attr(x,"levels")
+```
+
+一般因子都是在读文件的时候自动创建的，哪些全是字符串和字符的列就会被创建成因子。 可以使用`levels`属性示设置因子，第一个level在线性模型种很重要是base level？？(是说logistic回归里面输出是1类的概率吗)
+
+```{r}
+x <- factor(c("yes", "yes", "no", "yes", "no"))
+x
+x <- factor(c("yes", "yes", "no", "yes", "no"), levels = c("yes", "no"))
+x
+```
+
+### 缺失值
+
+`NaN`表示未定义的数学运算的返回值，是一种缺失，`NA`表示缺失值。
+
+-   `is.na()`可以用来检测对象是否为`NA`
+
+-   `is.nan()`可以用来检测对象是否为`NaN`
+
+-   `NA`也有数据类型，如integer `NA`，character `NA`
+
+-   `NaN`是`NA`，但是`NA`不是`NaN`
+
+```{r}
+## Now create a vector with both NA and NaN values
+x <- c(1, 2, NaN, NA, 4) ## integer NA
+is.na(x)
+is.nan(x)
+```
+
+区分`NA`和`NULL`，`NULL`表示空的，啥也没有，`NA`有坑，但是数据缺失。
+
+```{r}
+x <- c(NA,NA,NA)
+x
+length(x)
+x <- c(NULL,NULL,NULL)
+x
+length(x)
+```
+
+### 数据帧（Data Frame）
+
+数据帧用来存储表格数据。数据帧可以看作是一个特殊的列表，每个元素必须要有相同长度，即一列。与矩阵最大的区别在于，矩阵所有元素数据类型相同，但是数据帧每一列的元素类型一样，列之间数据类型可以不同。
+
+数据帧一般使用`read.table()`或者`read.csv()`创建，也可以用`data.frame()`像`list()`一样包含元素的显示创建。
+
+使用`data.matrix()`将数据帧转化为矩阵，也可以用`as.matrix()`
+
+```{r}
+x <- data.frame(foo = 1:4, bar = c(T, T, F, F))
+x
+data.matrix(x)
+as.matrix(x)
+```
+
+### 命名
+
+R对象都有名字，可以增强代码可读性。
+
+对于向量：
+
+```{r}
+x <- 1:3
+names(x) <- c("New York", "Seattle", "Los Angeles")
+x
+names(x)
+```
+
+对于列表:
+
+```{r}
+x <- list(1:3, c("a","b"), c(T,T,F))
+names(x) <- c("New York", "Seattle", "Los Angeles")
+x
+names(x)
+x <- list("Los Angeles" = 1, Boston = 2, London = 3)
+x
+```
+
+矩阵可以同时有行命名和列命名
+
+```{r}
+m <- matrix(1:4, nrow = 2, ncol = 2)
+dimnames(m) <- list(c("a", "b"), c("c", "d"))
+m
+```
+
+也可以分别设置行命名和列命名
+
+```{r}
+colnames(m) <- c("h", "f")
+rownames(m) <- c("x", "z")
+m
+```
+
+数据帧用`row.names()`设置行命名，`names()`设置列命名
+
+```{r}
+x <- data.frame(1:4, c(T, T, F, F))
+row.names(x) <- c("r1", "r2","r3","r4")
+names(x) <- c("c1", "c2")
+x
+```
+
+## 文件输入输出
+
+### 读取表格数据
+
+R读取数据的原生函数：
+
+-   `read.table`, `read.csv`, 读取表格数据，返回数据帧
+
+-   `readLines`, 逐行读取文本文件，返回字符串
+
+-   `source`, 读取R代码，函数(inverse of `dump`)
+
+-   `dget`, 读取R代码(inverse of `dput`)
+
+-   `load`, 读取保存的工作环境（任意个R对象）
+
+-   `unserialize`, 读取R二进制对象
+
+与之对应的写函数是：
+
+-   `write.table`
+
+-   `writeLines`
+
+-   `dump`, for dumping a textual representation of multiple R objects
+
+-   `dput`, for outputting a textual representation of an R object
+
+-   `save`, 以二进制格式保存任意个R对象到文件
+
+-   `serialize`, 以二进制格式保存任意个R对象到链接（或者文件）
+
+最常用的就是`read.table`，读取小规模表格数据，都不需要指定其他参数。
+
+```{r}
+data <- read.table("foo.txt")
+```
+
+### 读取大规模数据
+
+现在的数建议据量基本都很大，内存未必放得下。使用`read.table`读取大数据：
+
+-   读一读文档，有很多
+
+-   大概估算一下数据的大小，和内存做个比较，读不完就设置`nrows`分开读
+
+-   `read.table`会自动将以`#`开头的行认作是注释行，所以如果数据行没有注释的话，那就直接使用`comment.char = ""`来去掉注释行的识别，加快速度
+
+-   指定每一行的数据类型，因为`read.table`会先把所有行按照字符串格式读取，然后再根据所有数据识别是什么类型，如果直接指定数据类型会快很多。可以先读100行，自动判断数据类型，再读所有数据：
+
+```{r}
+initial <- read.table("datatable.txt", nrows = 100)
+classes <- sapply(initial, class)
+tabAll <- read.table("datatable.txt", colClasses = classes)
+```
+
+### 估算R对象的大小
+
+记住`10^3 = 2^10`这个式子就差不多能估算出来了，还有个问题是电脑还被其他程序和R对象占用了内存，一般取估算结果的两倍比较合理。
+
+### 第三方库readr
+
+`readr`提供了和原生函数一样的接口，但是更加的高效和更丰富的提示信息，可以尝试用用。
+
+### 使用文本格式和二进制格式存储数据
+文本形式不同于csv，他是R所特有的，它具有一定的可读性，保留了元数据。使用`dput()`或者`dump()`输出，`dget()`和`source读入`，一般使用`.R`文件后缀。
+```{r}
+y <- data.frame(a = 1, b = "a")
+# Print 'dput' output to console
+dput(y)
+# Send 'dput' output to a file
+dput(y, file = "../datas/y.R")            
+# Read in 'dput' output from a file
+new.y <- dget("../datas/y.R")             
+```
+二进制格式是文本格式的一种补充，首先它比文本格式节省空间，更有效率，其次对于数字类型，他不会损失精度。使用`save()`和`serialize()`存储，`load()`和`unserialize()`，一般使用`.rda`和`.RData`文件后缀，表示RDATA。
+```{r}
+a <- data.frame(x = rnorm(100), y = runif(100))
+b <- c(3, 4.4, 1 / 3)
+# Save 'a' and 'b' to a file
+save(a, b, file = "../datas/mydata.rda") 
+# Load 'a' and 'b' into your workspace
+load("../datas/mydata.rda")
+# Save everything to a file
+save.image(file = "../datas/mydata.RData")   
+# load all objects in this file
+load("../datas/mydata.RData")                
+x <- list(1, 2, 3)
+# 输出到命令行
+serialize(x, NULL)
+```
+### 外部接口
+数据来源于外部的链接接口，大部分情况是文件，也可以是其他：
+
+* file
+
+* gzfile, gzip压缩文件
+
+* bzfile, bzip2压缩文件
+
+* url，网页链接
+
+可以使用`file()`，`gzfile()`和`url()`等生成链接，设定读取模式：只读，只写，读写啥的，然后`open()`打开，`close()`关闭，'read.csv()'和`readLines()`读取就行。
+
+## 索引和切片
+使用`[]`对向量索引
+```{r}
+# 创建向量
+x <- c("a", "b", "c")
+names(x) <- list("elem1", "elem2", "elem3")
+
+# 整数索引，从1开始
+x[1]
+
+# 名字索引
+x["elem1"]
+
+# 负数表示不包含
+x[-1]
+
+# 切片
+x[1:length(x)]
+
+# 多个索引组成向量
+x[c(1,3)]
+x[c("elem1", "elem3")]
+
+# 布尔索引
+x[x>"a"]
+```
+用`[]`对matrix索引，可以推广到更高维的数据上。
+```{r}
+x <- matrix(1:6, 2, 3)
+x
+
+# 整数索引，第一行第2列
+x[1,2]
+
+# 切片, 空格表示所有列
+x[1, ]
+x[1, 1:2]
+
+# 索引会默认降维，可以设置，drop=FALSE不降维
+x[1,2, drop=FALSE]
+```
+对向量和矩阵的索引也可以推广到列表和数据帧上，但是存在一个问题，就是用`[]`对列表或者数据帧索引，返回的任然是列表和数据帧，如果我们需要的只是一个元素，那就要用到`[[]]`和`$`。
+```{r}
+#创建列表
+name <- c("A", "B", "C")
+score <- c(4, 7, 9)
+ls <- list(name, score)
+names(ls) <- list("foo", "bar")
+ls
+
+# 使用[]，仍然返回list
+ls[1]
+class(ls)
+
+# 使用[[]], 返回向量
+ls[[1]]
+class(ls[[1]])
+
+# 使用$， 返回向量
+ls$foo
+class(ls$foo)
+
+```
+`[[]]`和`$`的区别在于，`[[]]`可以计算索引，`$`只能使用字面名字
+```{r}
+temp <- "foo"
+
+ls[[temp]]
+
+ls$temp
+
+ls$foo
+```
+`[[]]`和`$`还可以部分匹配
+```{r}
+x <- list(aardvark = 1:5)
+x$a
+
+x[["a"]]
+
+x[["a", exact = FALSE]]
+```
+### 除去缺失值
+```{r}
+x <- c(1, 2, NA, 4, NA, 5)
+bad <- is.na(x)
+print(bad)
+
+x[!bad]
+```
+如果有多个R对象，只想找他们之间没有na的子集：
+```{r}
+x <- c(1, 2, NA, 4, NA, 5)
+y <- c("a", NA, "c", "d", NA, "f")
+df = data.frame(x,y)
+good <- complete.cases(df)
+df[good, ]
+```
+## 向量操作
+向量和矩阵都支持加减乘除和逻辑运算符，这里强调一下矩阵乘和矩阵点乘
+```{r}
+x <- matrix(1:4, 2, 2)
+y <- matrix(rep(10, 4), 2, 2)
+# 点乘
+x*y
+
+# 矩阵乘法
+x %*% y
+```
+### 算数运算符
+```{r}
+#加，减，乘，除，乘方
+#+, -, *, /, ^
+```
+不等长向量，一般是短的重复应用到长的，不是倍数会警告。
+
+### 常用向量函数
+* 舍入：ceiling, floor, round, signif, trunc, zapsmall
+
+* 符号函数 sign
+
+* 绝对值 abs
+
+* 平方根 sqrt
+
+* 对数与指数函数 log, exp, log10, log2
+
+* 三角函数 sin, cos, tan
+
+* 反三角函数 asin, acos, atan, atan2
+
+* 双曲函数 sinh, cosh, tanh
+
+* 反双曲函数 asinh, acosh, atanh
+
+### 排序函数
+sort(x)返回排序结果。rev(x)返回把各元素排列次序反转的结果。 order(x)返回排序用的下标。
+
+### 统计函数
+sum(求和), mean(求平均值), var(求样本方差), sd(求样本标准差), min(求最小值), max(求最大值), range(求最小值和最大值)等函数称为统计函数， 把输入向量看作样本，计算样本统计量。prod求所有元素的乘积。cumsum和cumprod计算累加和累乘积。
+
+### 生成规则序列的函数
+* seq函数是冒号运算符的推广。`seq(0, 2*pi, length.out=100)`产生从0到2*pi的等间隔序列，序列长度指定为100。
+
+* rep()函数用来产生重复数值
+
+### 逻辑运算符
+```{r}
+# <   <=  >  >=  ==  !=  %in%
+# 最后以后是集合运算，判断在不在里面
+
+# & | ! 与或非
+```
+`&&`和`||`分别为短路的标量逻辑与和短路的标量逻辑或，仅对两个标量进行运算，如果有向量也仅使用第一个元素。一般用在if语句、while语句中，且只要第一个比较已经决定最终结果就不计算第二个比较。
+
+### 逻辑运算函数
+* all, 测试是否都为真，输入包含NA可能返回NA
+
+* any，测试是否存在真，输入包含NA可能返回NA
+
+* which，返回真值对应的所有下标
+
+* identical(x,y)，比较两个R对象x与y的内容是否完全相同
+
+* duplicated，返回每个元素是否为重复值的结果
+
+* unique， 可以返回去掉重复值的结果
